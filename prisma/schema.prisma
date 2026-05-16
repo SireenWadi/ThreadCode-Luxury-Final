@@ -1,0 +1,88 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id              Int         @id @default(autoincrement())
+  name            String
+  brand           String
+  price           Float
+  category        Category
+  occasion        Occasion
+  description     String      // تم إزالة @db.Text لتتوافق مع PostgreSQL
+  imageUrl        String
+  detailImageUrl  String      @default("")
+  
+  // Raw keyword tags (legacy, kept for tech-spec tooltip)
+  tags            String      
+  
+  // Comma-separated body shapes: rectangle | invertedTriangle | hourglass
+  bodyShapes      String      @default("")
+  
+  // Comma-separated style aesthetic tags: Minimalist | Bold | Monochrome | Earth Tones | Structured | Relaxed Fit
+  styleTags       String      @default("")
+  
+  // Gender targeting: "men" | "women" | "unisex"
+  gender          String      @default("unisex")
+  inStock         Boolean     @default(true)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  orderItems      OrderItem[]
+
+  @@map("products")
+}
+
+model Order {
+  id        Int         @id @default(autoincrement())
+  status    OrderStatus @default(PENDING)
+  total     Float
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  items     OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  quantity  Int
+  price     Float
+  productId Int
+  orderId   Int
+
+  product   Product @relation(fields: [productId], references: [id])
+  order     Order   @relation(fields: [orderId], references: [id])
+
+  @@map("order_items")
+}
+
+enum Category {
+  TOP
+  BOTTOM
+  OUTERWEAR
+  FOOTWEAR
+  ACCESSORY
+}
+
+enum Occasion {
+  JOB_INTERVIEW
+  GYM
+  DINNER_NIGHT
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
