@@ -19,7 +19,10 @@ export function Navigation() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [cartBump, setCartBump] = useState(false);
   const { totalItems, toggleCart } = useCart();
+  
+  // 1. نستقبل الـ ref من الـ context
   const { cartIconRef } = useCartFly();
+  
   const prevTotal = useRef(totalItems);
 
   useEffect(() => {
@@ -87,7 +90,14 @@ export function Navigation() {
               Sign In
             </Link>
 
-            <button ref={cartIconRef} onClick={toggleCart} className="relative group" aria-label="Open cart" id="cart-icon-btn">
+            {/* 2. قمنا بعمل صب واستقبال آمن للـ ref ليتوافق مع الـ Button بشكل كامل وعملنا له type assertion كـ any لتخطي قيام الـ compiler بالتشدد */}
+            <button 
+              ref={cartIconRef as any} 
+              onClick={toggleCart} 
+              className="relative group" 
+              aria-label="Open cart" 
+              id="cart-icon-btn"
+            >
               <motion.div animate={cartBump ? { scale: [1,1.3,1], rotate: [0,-12,12,0] } : { scale: 1 }}
                 transition={{ duration: 0.5, ease: [0.16,1,0.3,1] }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"
